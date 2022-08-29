@@ -348,19 +348,74 @@ export module 'vue/types/vue' {
 待补充
 
 ---
+layout: two-cols
+---
 
 # 案例一 FutureUI-Form 表单校验规则
 
 1. 安装依赖 <kbd>npm i -D async-validate</kbd>
-2. 新建工具函数：<kbd>defineFormRules</kbd>
+2. 新建工具函数：<kbd>defineForm</kbd>
 
 ```js
-// TOOD: 待补充
+/** @typedef {import('async-validator').RuleItem} RuleItemBase */
+/** @typedef {RuleItemBase & { trigger?: 'change' | 'blur' }} RuleItem */
+/** @typedef {RuleItem | RuleItem[]} Rule */
+
+/**
+ * @template {Record<string, unknown>} T
+ *
+ * @param {T} formData
+ * @param {Record<keyof T, Rule>} [formRules]
+ * @returns {{ formData: T; formRules: Record<keyof T, Rule> }}
+ */
+export default function defineForm(formData, formRules) {
+  return {
+    formData,
+    formRules,
+  }
+}
+```
+
+::right::
+
+<img src="public/example-form-rules-use-1.png" class="mx-5 my-15 w-9.5\/10" />
+<img src="public/example-form-rules-use-2.png" class="mx-5 w-9.5\/10" />
+
+---
+
+# 案例一 FutureUI-Form 表单检验规则 TS hooks 版
+
+```ts
+import { reactive, shallowRef } from '@vue/composition-api'
+import { ElForm } from 'element-ui/types/form'
+import { clone } from 'lodash-es'
+
+import type { RuleItem as RuleItemBase } from 'async-validator'
+type RuleItem = RuleItemBase & { trigger?: 'blur' | 'change' }
+type Rule = RuleItem | RuleItem[]
+
+export function useForm<T extends Record<string, unknown>>($formData: T, $formRules?: Record<keyof T, Rule>) {
+  const formEl = shallowRef(null as unknown as ElForm)
+  const formData = reactive(clone($formData))
+  const formRules = reactive(clone($formRules || {}))
+  /** 重置表单对象为默认值 */
+  const onReset = () => {
+    Object.assign(formData, clone($formData))
+    Object.assign(formRules, clone($formRules))
+    formEl.value.resetFields()
+  }
+  return {
+    formEl,
+    formData,
+    formRules,
+    onReset,
+  }
+}
 ```
 
 ---
 
-# 案例二 多语言
+# 案例二
 
 待补充
 
@@ -369,3 +424,19 @@ export module 'vue/types/vue' {
 # 案例三
 
 待补充
+
+---
+
+# 可实践清单
+
+- [ ]  VSCode 环境、插件配置
+- [ ]  为项目添加 jsconfig/tsconfig
+  - [ ]  保证每个 import 的文件都能点击跳转
+  - [ ]  保证项目文件中的导出和第三方库都能提供代码补全（自动导入）及类型提示
+- [ ]  为项目内全局变量添加类型声明
+- [ ]  为各种扩展插件添加类型声明
+- [ ]  将原来分散的一组常量改成枚举写法
+- [ ]  为公共逻辑添加合理的类型
+- [ ]  为交互数据添加类型
+- [ ]  新功能使用 Composition-API，或者考虑升级到 Vue2.7
+- [ ]  考虑升级 TypeScript
