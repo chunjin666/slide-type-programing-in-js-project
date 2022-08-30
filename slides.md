@@ -151,7 +151,7 @@ image: https://source.unsplash.com/collection/94734566/960x1080
   - 默认值：为能包含所有 <kbd>files</kbd> 或者 <kbd>include</kbd> 定义的所有文件的目录。比如：如果所有文件都在 <kbd>src/</kbd> 目录下，那就是 <kbd>src/</kbd>。
 - **paths** 类似于 <kbd>Webpack</kbd> 中的 <kbd>alias</kbd>，可以使用类似 <kbd>'@/components'</kbd> 来简化路径。
   - 配置时的路径是 <kbd>baseUrl</kbd> 为基础的的相对路径。所以需要先配置 <kbd>baseUrl</kbd>。
-  - 配置示例：<kbd>"paths": { "@/*": ["src/*]" }</kbd>，<kbd>"paths": { "utils/*": ["src/utils/*", "lib/utils/*"]}</kbd>。
+  - 配置示例：`"paths": { "@/*": ["src/*"] }`，`"paths": { "utils/*": ["src/utils/*", "lib/utils/*"]}`。
 - **outDir** 编译输出文件的根目录。
 - **outFile** 如果定义了，所有非模块文件都被一起打包输出到该文件，如果 <kbd>module</kbd> 选项为 <kbd>System</kbd> 或 <kbd>AMD</kbd>，模块系统文件也会被打包到 global 后面。
   - <kbd>CommonJS</kbd> 和 <kbd>ES6</kbd> 模块不能通过设置该选项来打包 bundle 文件。
@@ -214,7 +214,43 @@ image: https://source.unsplash.com/collection/94734566/960x1080
 
 # tsconfig 配置参考
 
+## Node.js项目
+
+- [TypeScript官方推荐的一些基础配置](https://github.com/tsconfig/bases/)
+- [Node.js 不同版本对 ES 标准的支持表](https://node.green/)
+
 待补充
+
+---
+
+# jsconfig 配置参考
+
+```json
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "jsx": "preserve",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "skipLibCheck": true,
+    "checkJs": true,
+    "lib": ["ESNext", "DOM", "ScriptHost"],
+    "paths": {
+      "@cards/*": ["./src/pages/cards/*"]
+    }
+  },
+  "include": [
+    "src/**/*",
+    "src/**/*.vue"
+  ],
+  "exclude": [
+    "node_modules/**/*"
+  ]
+}
+```
 
 ---
 layout: two-cols
@@ -286,7 +322,7 @@ declare global {
 
 # 模块扩展示例 - 神策上报
 
-```ts
+```ts assets.d.ts
 import type { MarketType } from '@cards/constants/market-types';
 
 export module 'vue/types/vue' {
@@ -317,15 +353,67 @@ export module 'vue/types/vue' {
 
 ---
 
-# 模块扩展示例 - 神策上报 - 效果
+# 资源文件类型扩展
 
-<img src="example-declare-sd-report-use.png" object-fit="cover" class="h-9\/10" alt="效果" />
+assets.d.ts
+
+```ts
+declare module '*.bmp' {
+  const src: string;
+  export default src;
+}
+
+declare module '*.gif' {
+  const src: string;
+  export default src;
+}
+
+declare module '*.jpg' {
+  const src: string;
+  export default src;
+}
+
+declare module '*.jpeg' {
+  const src: string;
+  export default src;
+}
+
+declare module '*.png' {
+  const src: string;
+  export default src;
+}
+
+declare module '*.webp' {
+    const src: string;
+    export default src;
+}
+
+declare module '*.svg' {
+  const src: string;
+  export default src;
+}
+
+declare module '*.css' {
+  const src: string;
+  export default src;
+}
+
+declare module '*.scss' {
+  const src: string;
+  export default src;
+}
+
+declare module '*.sass' {
+  const src: string;
+  export default src;
+}
+```
 
 ---
 
-# JS 项目渐近式升级 TS 的一些思路
+# 模块扩展示例 - 神策上报 - 效果
 
-待补充
+<img src="example-declare-sd-report-use.png" object-fit="cover" class="h-9\/10" alt="效果" />
 
 ---
 
@@ -339,13 +427,31 @@ export module 'vue/types/vue' {
 
 # 常见类型问题处理以及避免
 
-待补充
+1. TS 项目中引入公司内部包报错找不到类型声明问题
+   1. ❎  <kbd>declare module '@futu/xxx { export default any };</kbd>
+   2. ✅  <kbd>include: ["node_modules/@futu/**/*"]</kbd>
 
 ---
 
-# 一些提升代码可维护性及开发体验的案例
+# JS 项目渐近式升级 TS 的一些思路
 
-待补充
+<img src="/js-ts-dts.png" class="w-2\/10 float-right" />
+
+1. <kbd>JS & JSDoc</kbd>：实现一些简单的类型化比较方便，不依赖配置、构建打包，缺点：书写稍麻烦
+2. <kbd>JS/TS + .d.ts</kbd>：提供一些公共库的类型声明或者其他类型定义，完全跨语言支持，缺点：纯类型无逻辑
+3. <kbd>Options-API</kbd> ==> <kbd>Composition-API</kbd>
+4. 在前面的基础上增加 TS 构建打包及 eslint 的支持：综合体（<Kbd>TS + JS & JSDoc + .d.ts</kbd>）
+5. 再进一步把原来不好类型化的地方实现类型化，甚至完全升级为 TS，最终实现项目的完全类型化。
+
+<br />
+
+> 补充：[ESLint插件及配置体系 包括Vue和TS](https://www.yuque.com/docs/share/a42f67f0-3e1e-4a03-a39b-6c01bad6c549?#)
+
+---
+layout: image
+---
+
+# 一些提升代码可维护性及开发体验的案例
 
 ---
 layout: two-cols
@@ -414,14 +520,71 @@ export function useForm<T extends Record<string, unknown>>($formData: T, $formRu
 ```
 
 ---
+layout: two-cols
+---
 
-# 案例二
+# 案例二 JS & JSDoc + .d.ts
 
-待补充
+typings/user.d.ts
+
+```ts
+declare namespace User {
+  export interface AccountDetail {
+    id: number;
+    currency: string;
+    balance: number;
+    enable: boolean;
+  }
+
+  export type AccountList = AccountDetail[];
+}
+```
+
+some-file.js
+
+```js
+/**
+ * @param {User.AccountDetail} account 账户
+ * @param {Cards.ExperienceCard} card 体验卡
+ */
+function doSomething(account, card) {
+  console.log(account.balance, card.market);
+}
+```
+
+::right::
+
+typings/cards.d.ts
+
+```ts
+declare namespace Cards {
+  import { MarketType } from '@cards/constants/market-types';
+  export interface BaseCard {
+    id: string;
+    name: string;
+  }
+
+  export interface VIPCard extends BaseCard {
+    level: number;
+    score: number;
+  }
+
+  export interface ExperienceCard extends BaseCard {
+    status: number;
+    validateBegin: number;
+    validateEnd: number;
+    market: MarketType;
+  }
+
+  export type Card = VIPCard | ExperienceCard;
+}
+```
+
+> 注意点：jsconfig 中的 include 字段要把 typings/ 下的文件包含进来
 
 ---
 
-# 案例三
+# 案例三 多语言
 
 待补充
 
@@ -433,6 +596,7 @@ export function useForm<T extends Record<string, unknown>>($formData: T, $formRu
 - [ ]  为项目添加 jsconfig/tsconfig
   - [ ]  保证每个 import 的文件都能点击跳转
   - [ ]  保证项目文件中的导出和第三方库都能提供代码补全（自动导入）及类型提示
+- [ ]  为各种配置文件加上类型（eslint、webpack）
 - [ ]  为项目内全局变量添加类型声明
 - [ ]  为各种扩展插件添加类型声明
 - [ ]  将原来分散的一组常量改成枚举写法
