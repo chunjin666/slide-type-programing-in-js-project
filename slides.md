@@ -449,9 +449,11 @@ declare module '*.sass' {
 
 ---
 layout: image
+image: https://source.unsplash.com/collection/94734566/1920x1080
+class: text-center
 ---
 
-# 一些提升代码可维护性及开发体验的案例
+# 一些实战案例
 
 ---
 layout: two-cols
@@ -581,6 +583,74 @@ declare namespace Cards {
 ```
 
 > 注意点：jsconfig 中的 include 字段要把 typings/ 下的文件包含进来
+
+---
+layout: two-cols
+---
+
+# 案例三 枚举
+
+```js
+/**
+ * @template T
+ * @template {keyof T} [K=keyof T]
+ * @typedef {K extends K ? T[K] : never} ValueOf
+ */
+
+/**
+ * @enum {ValueOf<typeof CurrencyType>}
+ */
+export const CurrencyType = /** @type {const} */ ({
+    CNY: "CNY",
+    USD: "USD",
+    HKD: "HKD",
+});
+
+/**
+ * 币种 - 对应的符号
+ * @type {Record<CurrencyType, string>}
+ */
+export const CurrencyToSignMap = {
+    [CurrencyType.CNY]: '¥',
+    [CurrencyType.USD]: '$',
+    // Key不全 CurrencyToNameMap 会报错
+    // [CurrencyType.HKD]: 'HK$',
+};
+```
+
+::right::
+
+```js
+/**
+ * @param {CurrencyType} currency
+ */
+function doSomethingWithCurrency(currency) {
+    switch(currency) {
+        case CurrencyType.CNY:
+            console.log(currency);
+            break;
+        case CurrencyType.USD:
+            console.log(currency);
+            break;
+        // 分支未处理完 NeverRun 会报错
+        // case CurrencyType.HKD:
+        //     console.log(currency);
+        //     break;
+        default:
+            /** @type {never} */
+            const NeverRun = currency;
+    }
+}
+
+// 类型提示
+doSomethingWithCurrency('CNY');
+doSomethingWithCurrency(CurrencyType.CNY);
+doSomethingWithCurrency('NOT_EXIST'); // 检查不通过
+```
+
+[💻在线查看](https://www.typescriptlang.org/play?noFallthroughCasesInSwitch=true&filetype=js#code/PQKhFgCgAIWgBALgUwLYAcA2BDF0AqUsCKGOeA3gNbICeA9gGYEC+0A2gNIC8NDz+ALpE4SWumQATZMwqdoyAB4oAdpIDO0eQH4CXQdABc0FcgBuyAE5sAatkwBXZAHlGI4FCigIMUchUOqNAUdo4ujAA8iOLITNAAwg6Wlv4AxrT4MQB8LO5QSuj0lojQqfQq6iWJyWkZMdDc0N4k9RRlFYhsIMDQABQURNBD8QByAJrGAESjY5MANINDAKoAygAiU6tr84vQABKcG9CTB9sLkCwAlADcnpDeItCAgHqAs57QALTQgJ-agCl6gCFugDJvQDvyo8xBJggAlZBlSySCLVFIqdKZCRzaCVSwASxUAHMcnlIAUiiV2pUEklEcj6CtMTiVABZbDoBrBXbsBG1FHIAB0M0ExgA5ABSgXnIZDdkUzkxblbfnQAUAElFu2APU4dEAsHKAC0VyTUkRl6CNsKhkIzmYAseUApUaATFTVT1JfrkTLTvKBQdlecWLdIF4wKD0NhLCbghyDVy2KkpQaCYwHEjEJjytBJNT6KbEAALbE4gDqmKzYfSvSjTtol1ZMHF6gA7gXUpmS9H0hWBlXxeLUth1Mg9ZS6hJeeNDLsOx3SfRMDzMPQcU2yzdR2OhgAjFLYKg+5dDLs9vvSwdbEft7c78rqSfT2fz-uLk+ntfIDdb7dq6CAMCVAPSmgCpzQAgmoAwF0AGO1oBGcwrAheNoGtO173FN9d17IsBx5U5j1PN9x3PS9uRnOdS1vF9lww8VH2fJchmkRhsAcTBEDQ084LAFpwQoUwLGsWAPFg5dSRKUD2IglQWXw2pCOgXILjuN9AG8fQBo9UABeNAC5PKBUxWdNkCzHN80LZtaF6AUZgFO9VPUzTcW0zMkN6JCuSHMY7zfQABi0AU-NNUALATAHH4lS0wzbNzILSzdP0kZnHwAB9ABRAANABJFZ8CMn0gA)
+<span class="inline-block w-60"></span>
+[💻TS版](https://www.typescriptlang.org/play?noFallthroughCasesInSwitch=true&filetype=ts#code/KYDwDg9gTgLgBMAdgVwLZwMLKlJBjATwBUCxg4BvAWACg57MA5ATTgF44AiDFzgGloM4AVQDKAEXZcx4-oIYAJANKSOnZbIE0AvgG5atAPQAqY4ONxAgHqBZzzgBaOIE-tQCl6gELdAZN6B35XOHaoSLBweBCIAM7wWDj4xBCiAJYA5ogAsgCGYABccABKwMFQACYAPJG4iIQkZHxw4VBxiAkAfFLUdAwA2qXRlcAAdDzMALpZAOQApSNaQp3YZRWkfTLDcCMAJJPy9IaGcErABICwcoAWipiz3RCMqajAaWBwgFjygKVGgJipm3DbcDNR5cQLvRrLEbKdZaPQGGi0ABmyHKMDiITgBViEGuMAAFvUEgB1OLoro-AAUeDOPyy+PmZAAlJQ3qEAO64vBookkwjU1pCIR4VKhcjk35kfosDJvTkMYJhCAAGz6UogCRZ3zZ+jaYqEACNcKkANYqtVBHl81kCxYSEWq-VBEKhaWy+WKuYESl6y30TXAHUusUfQBgSoB6U0AVOaAEE1AGAugBjtOCMYAAN2AUGyMIeL1FDA+3N5pyVJv+KnN+o+XOttt6coVxKzzpTWx2Gq1uqriOAkNSyClMDzrqtYXgUdj8ZhWUQMbjUnLjt07x2gDR-QCL0YA300AAxaAU-MG0J0VAIHS4EOtwBRHDQAkAA2EQ-AeRgwAKQWNWVWFDH0W0R+dk7ggAX4wAyEYuVxbtLR-whGgkVEFFgHRTEcTxY0CX5HohWYV8PgAeSUWgQLAiCGigtF+QJEYBhGJCdgOQBfgMAF7dAFLjQBMxUAHgV0ORVEMWw3FcJgkZGGQogAH1dwADQASVEIgiInD5lwOQAsBMAcfjaCAA)
 
 ---
 
